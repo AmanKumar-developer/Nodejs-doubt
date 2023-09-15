@@ -208,7 +208,7 @@ app.get(
 //api-8
 app.get(
   " /tweets/:tweetId/replies/",
-  authentication.tweetAccessVerification,
+  authentication,tweetAccessVerification,
   async (request, response) => {
     const { tweetId } = request.params;
     const getRepliedQuery = `SELECT name,reply 
