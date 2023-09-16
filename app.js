@@ -50,7 +50,7 @@ const authentication = (request, response, next) => {
   if (authHeader) {
     jwtToken = authHeader.split(" ")[1];
   }
-  if (iwtToken) {
+  if (jwtToken) {
     jwt.verify(jwtToken, "SECRET_KEY", (error, payload) => {
       if (error) {
         response.status(401);
@@ -152,8 +152,8 @@ app.get("/user/tweets/feed/", authentication, async (request, response) => {
 app.get("/user/following/", authentication, async (request, response) => {
   const { username, userId } = request;
   const getFollowingUsersQuery = `SELECT name FROM 
-    follower INNER JOIN user.user_id = follower.following_user_id 
-    WHERE following-user_id = '${userId}';`;
+    follower INNER JOIN user ON user.user_id = follower.following_user_id 
+    WHERE following_user_id = '${userId}';`;
 
   const followingPeople = await db.all(getFollowingUsersQuery);
   response.send(followingPeople);
@@ -180,7 +180,7 @@ app.get(
     const { tweetId } = request.params;
     const getTweetQuery = `SELECT tweet,
     (SELECT COUNT() FROM like WHERE tweet_id = '${tweetId}') AS likes,
-    (SELECT COUNT() FROM  reply WHERE tweet_id = '${tweetId}') AS replies
+    (SELECT COUNT() FROM  reply WHERE tweet_id = '${tweetId}') AS replies,
     date_time AS dateTime 
     FROM tweet 
     WHERE tweet.tweet_id = '${tweetId}';`;
@@ -207,8 +207,9 @@ app.get(
 
 //api-8
 app.get(
-  " /tweets/:tweetId/replies/",
-  authentication,tweetAccessVerification,
+  "/tweets/:tweetId/replies/",
+  authentication,
+  tweetAccessVerification,
   async (request, response) => {
     const { tweetId } = request.params;
     const getRepliedQuery = `SELECT name,reply 
@@ -264,3 +265,5 @@ app.delete("/tweets/:tweetId/", authentication, async (request, response) => {
 });
 
 module.exports = app;
+
+    
